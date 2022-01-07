@@ -25,6 +25,10 @@ executable apecs-test
                        Constants
                        Villagers
                        Utils
+                       DataTypes
+                       Collisions
+                       Input
+                       Draw
   -- other-extensions:
   build-depends:       base >=4.14 && <4.15
 					  ,linear

@@ -6,7 +6,7 @@
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE TypeFamilies               #-}
 
-module Particles(spawnParticles, stepParticles) where
+module Particles(spawnParticles, stepParticles, stepParticlePositions) where
 
 import Components
 import Linear
@@ -16,8 +16,9 @@ import Control.Monad
 import qualified Apecs.Core
 
 spawnParticles :: System' ()
-spawnParticles =
-  cmapM $ \(GlobalUnique, MousePosition (V2 x y)) -> replicateM_ 1 $ do
+spawnParticles = do
+  MousePosition (V2 x y) <- gget @MousePosition
+  replicateM_ 1 $ do
     vx <- liftIO $ (/ 10.0) <$> randomRIO (0.0, 20.0)
     vy <- liftIO $ randomRIO (2.0, 3.0)
     t  <- liftIO $ randomRIO (4.0, 6.0)
@@ -32,3 +33,6 @@ stepParticles dT = cmap $ \(Particle t) ->
 
 gget :: forall c w m . (Has w m c, Apecs.Core.ExplGet m (Storage c)) => SystemT w m c 
 gget = Apecs.get global
+
+stepParticlePositions :: Float -> System' ()
+stepParticlePositions dT = cmap $ \(Particle t, Position p, Velocity (V2 vx vy)) -> (Position (p + V2 vx vy), Velocity (V2 vx (vy - 0.1)))

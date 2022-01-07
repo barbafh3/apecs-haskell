@@ -22,6 +22,12 @@ module Components(
     Rng(..),
     Sprite(..),
     Building(..),
+    StorageSpace(..),
+    BoundingBox(..),
+    InteractionBox(..),
+    DrawLevel(..),
+    InfoPanel(..),
+    EntityName(..),
     System',
     World,
     initWorld'
@@ -37,6 +43,7 @@ import Data.Monoid
 import Data.Semigroup (Semigroup)
 import Graphics.Gloss.Juicy (loadJuicyPNG)
 import Graphics.Gloss (Rectangle(Rectangle))
+import DataTypes (StorageList, DrawLevels (Default))
 
 newtype Position = Position (V2 Float) deriving Show
 instance Component Position where type Storage Position = Map Position
@@ -73,17 +80,40 @@ instance Component Sprite where type Storage Sprite = Map Sprite
 data Building = Building deriving Show
 instance Component Building where type Storage Building = Map Building
 
+newtype StorageSpace = StorageSpace StorageList deriving Show
+instance Component StorageSpace where type Storage StorageSpace = Map StorageSpace
+
 newtype Rng = Rng StdGen deriving Show
 instance Semigroup Rng where (<>) = mappend
 instance Monoid Rng where mempty = Rng $ mkStdGen 1
 instance Component Rng where type Storage Rng = Global Rng
+
+data BoundingBox = BoundingBox (V2 Float) (V2 Float) deriving Show
+instance Component BoundingBox where type Storage BoundingBox = Map BoundingBox
+
+newtype DrawLevel = DrawLevel DrawLevels deriving (Show, Eq)
+instance Semigroup DrawLevel where (<>) = mappend
+instance Monoid DrawLevel where mempty = DrawLevel Default
+instance Component DrawLevel where type Storage DrawLevel = Global DrawLevel
+
+data InteractionBox = InteractionBox (V2 Float) (V2 Float) deriving Show
+instance Component InteractionBox where type Storage InteractionBox = Map InteractionBox
+
+newtype EntityName = EntityName String deriving Show
+instance Component EntityName where type Storage EntityName = Map EntityName
+
+data InfoPanel = InfoPanel Bool String  deriving Show
+instance Semigroup InfoPanel where (<>) = mappend
+instance Monoid InfoPanel where mempty = InfoPanel False ""
+instance Component InfoPanel where type Storage InfoPanel = Global InfoPanel
 
 type Kinetic = (Position, Velocity)
 
 
 makeWorld "World" [
     ''Position, ''Velocity, ''Particle, ''MousePosition, ''GlobalUnique, ''Camera, ''Villager,
-    ''IdleMovement, ''TargetPosition, ''IdlePoint, ''Rng, ''Sprite, ''Building]
+    ''IdleMovement, ''TargetPosition, ''IdlePoint, ''Rng, ''Sprite, ''Building, ''StorageSpace,
+    ''BoundingBox, ''DrawLevel, ''InteractionBox, ''InfoPanel, ''EntityName]
 
 type System' a = System World a
 

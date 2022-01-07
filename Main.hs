@@ -4,6 +4,7 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeApplications #-}
 
 import Apecs
 import Apecs.Gloss
@@ -16,29 +17,47 @@ import Data.Semigroup (Semigroup)
 import Graphics.Gloss.Juicy (loadJuicyPNG)
 import Graphics.Gloss (Rectangle(Rectangle))
 import Components
-import Particles (stepParticles, spawnParticles)
+import Particles (stepParticles, spawnParticles, stepParticlePositions)
 import Constants
 import Tilemap (createTilemap)
-import Villagers (idleTick, checkIdleTimer, idleMove)
+import Villagers (idleTick, checkIdleTimer, idleMove, updateVillagerCollisions)
+import DataTypes (DrawLevels(..))
+import Apecs.Physics (Collision(Collision))
+import Utils (gget, translate')
+import Input (handleEvent)
+import Draw (draw)
 
 windowConfig = InWindow "ApecsTest" (1280, 900) (10, 10)
 
 initialize ::StdGen ->  System' ()
 initialize rng = do
   newEntity GlobalUnique
+  replicateM_ 0 $ do
+    newEntity (
+        Villager,
+        (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+        (Position $ V2 0.0 0.0,
+        BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
+        IdleMovement 20 3.0 0.0,
+        IdlePoint $ V2 0.0 0.0,
+        Velocity $ V2 60.0 60.0,
+        StorageSpace [("Wood", 20)],
+        TargetPosition Nothing)))
   newEntity (
-      Villager,
-      Sprite $ Rectangle (6 * 16, 12 * 16) defaultRectSize, 
-      Position $ V2 0.0 0.0, 
-      IdleMovement 20 3.0 0.0, 
-      IdlePoint $ V2 0.0 0.0,
-      Velocity $ V2 60.0 60.0, 
-      TargetPosition Nothing)
-  newEntity (
-      Building, 
-      Sprite $ Rectangle (2 * 16, 6 * 16) defaultRectSize,
+      Building,
+      EntityName "Idle Point",
+      Sprite $ Rectangle (2 * tileSize, 6 * tileSize) defaultRectSize,
+      InteractionBox (V2 0.0 0.0) defaultRectSizeV2,
       Position $ V2 0.0 0.0)
-  newEntity (Rng rng)
+  newEntity (
+      Building,
+      EntityName "House",
+      Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
+      InteractionBox (V2 100.0 0.0) defaultRectSizeV2,
+      Position $ V2 100.0 0.0)
+  newEntity $ Rng rng
+  newEntity $ DrawLevel Default
+  newEntity $ InfoPanel False ""
   return ()
 
 main :: IO ()
@@ -52,36 +71,16 @@ main = do
     initialize rng
     play windowConfig white 60 (draw maybeTileset tilemap) handleEvent (step rng)
 
-draw :: Maybe Picture -> [Picture] -> System' Picture
-draw mts tilemap = 
-  case mts of
-    Just (Bitmap ts) -> do
-      particles <- foldDraw $
-        \(Particle t, Velocity (V2 vx vy), Position (V2 px py)) ->
-          translate px py $ color black $ circleSolid t
-      villagers <- foldDraw $
-        \(Villager, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
-      buildings <- foldDraw $
-        \(Building, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
-      -- return $ Pictures tilemap <> villagers <> particles
-      return $ Pictures tilemap <> buildings <> villagers <> particles
-    _ -> return blank
-
 step :: StdGen -> Float -> System' ()
 step rng dt = do
+  drawLevel <- gget @DrawLevel
+  case drawLevel of
+    DrawLevel DrawAll -> spawnParticles
+    DrawLevel DrawParticles -> spawnParticles
+    _ -> return ()
   idleTick dt
   checkIdleTimer dt
   idleMove dt
-  -- spawnParticles
-  stepPosition dt
   stepParticles dt
-
-handleEvent :: Event -> System' ()
-handleEvent (EventMotion (x, y)) = set global $ MousePosition (V2 x y)
-handleEvent _ = return ()
-
-stepPosition :: Float -> System' ()
-stepPosition dT = cmap $ \(Particle t, Position p, Velocity (V2 vx vy)) -> (Position (p + V2 vx vy), Velocity (V2 vx (vy - 0.1)))
-
-translate' :: Position -> Picture -> Picture
-translate' (Position (V2 x y)) = translate x y
+  stepParticlePositions dt
+  updateVillagerCollisions dt

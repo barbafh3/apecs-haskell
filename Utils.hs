@@ -1,5 +1,11 @@
-module Utils ((<+>), (<->), vectorLength, normalizeVector) where
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleContexts #-}
+module Utils ((<+>), (<->), vectorLength, normalizeVector, gget, translate') where
 import Linear (V2(V2))
+import Apecs.Core
+import Apecs.Gloss
+import Components (Position (Position))
+import Apecs (get, global)
 
 sumV2 :: V2 Float -> Float
 sumV2 (V2 x y) = x + y
@@ -17,3 +23,9 @@ vectorLength vec = sqrt . sumV2 $ (** 2) <$> vec
 
 normalizeVector :: V2 Float -> V2 Float
 normalizeVector vec = (/ vectorLength vec) <$> vec
+
+gget :: forall c w m . (Has w m c, Apecs.Core.ExplGet m (Storage c)) => SystemT w m c 
+gget = get global
+
+translate' :: Position -> Picture -> Picture
+translate' (Position (V2 x y)) = translate x y
