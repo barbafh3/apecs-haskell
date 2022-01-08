@@ -53,8 +53,8 @@ initialize rng = do
       Building,
       EntityName "House",
       Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
-      InteractionBox (V2 100.0 0.0) defaultRectSizeV2,
-      Position $ V2 100.0 0.0)
+      InteractionBox (V2 100.0 20.0) defaultRectSizeV2,
+      Position $ V2 100.0 20.0)
   newEntity $ Rng rng
   newEntity $ DrawLevel Default
   newEntity $ InfoPanel False ""
@@ -75,9 +75,8 @@ step :: StdGen -> Float -> System' ()
 step rng dt = do
   drawLevel <- gget @DrawLevel
   case drawLevel of
-    DrawLevel DrawAll -> spawnParticles
-    DrawLevel DrawParticles -> spawnParticles
-    _ -> return ()
+    level | level == DrawLevel DrawAll && level == DrawLevel DrawParticles -> spawnParticles
+          | otherwise -> return ()
   idleTick dt
   checkIdleTimer dt
   idleMove dt

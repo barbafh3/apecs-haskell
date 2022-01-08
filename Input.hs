@@ -34,7 +34,7 @@ handleEvent (EventKey (SpecialKey KeyF9) Down _ _) = do
     _ -> set global $ DrawLevel DrawAll
 
 handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) =
-  cmapM $ \(Position p, InteractionBox pos size, EntityName name, Entity e) -> do
+  cmapM_ $ \(Position p, InteractionBox pos size, EntityName name, Entity e) -> do
     let newPos = pos - (defaultRectSizeV2 / 2)
     if isInsideInteractionBox (V2 x y) (InteractionBox newPos size)
        then set global $ InfoPanel True name
