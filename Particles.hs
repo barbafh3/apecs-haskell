@@ -15,12 +15,12 @@ import System.Random
 import Control.Monad
 import qualified Apecs.Core
 
-spawnParticles :: System' ()
-spawnParticles = do
+spawnParticles :: Int -> System' ()
+spawnParticles amount = do
   MousePosition (V2 x y) <- gget @MousePosition
-  replicateM_ 1 $ do
+  replicateM_ amount $ do
     rand <- randomIO
-    vx <- if (rand :: Float) > 0.5 then randomRIO (0.0, 60.0) else (*(-1)) <$> randomRIO (0.0, 60.0)
+    vx <- if (rand :: Float) > 0.5 then randomRIO (0.0, 40.0) else (*(-1)) <$> randomRIO (0.0, 40.0)
     vy <- liftIO $ randomRIO (60.0, 80.0)
     t  <- liftIO $ randomRIO (4.0, 6.0)
     newEntity (Particle t, Position (V2 x y), Velocity (V2 (vx - 1.0) vy))
@@ -36,4 +36,4 @@ gget :: forall c w m . (Has w m c, Apecs.Core.ExplGet m (Storage c)) => SystemT 
 gget = Apecs.get global
 
 stepParticlePositions :: Float -> System' ()
-stepParticlePositions dT = cmap $ \(Particle t, Position p, Velocity (V2 vx vy)) -> (Position (p + ( (* dT) <$> V2 vx vy)), Velocity (V2 vx (vy - 2.0)))
+stepParticlePositions dT = cmap $ \(Particle t, Position p, Velocity (V2 vx vy)) -> (Position (p + ( (* dT) <$> V2 vx vy)), Velocity (V2 vx (vy - 2.5)))

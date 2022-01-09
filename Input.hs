@@ -13,6 +13,7 @@ import Graphics.Gloss.Interface.IO.Game
 import Apecs.Physics.Gloss
 import Constants (defaultRectSizeV2)
 import Control.Monad (when)
+import Particles (spawnParticles)
 
 handleEvent :: Event -> System' ()
 handleEvent (EventMotion (x, y)) = set global $ MousePosition (V2 x y)
@@ -41,7 +42,9 @@ handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) =
     (InfoPanel _ text) <- gget @InfoPanel
     let newPos = pos - (defaultRectSizeV2 / 2)
     if isInsideInteractionBox (V2 x y) (InteractionBox newPos size)
-        then set global $ InfoPanel True name
+        then do
+              set global $ InfoPanel True name
+              spawnParticles 5
             else Control.Monad.when (text == name) $ set global $ InfoPanel False ""
 
 handleEvent _ = return ()
@@ -49,4 +52,4 @@ handleEvent _ = return ()
 changeIdlePoint :: Int -> Int -> System' ()
 changeIdlePoint ety1 ety2 = cmapM_ $
   \(Building, Position pos, Entity e1) ->
-    Control.Monad.when (e1 == ety1) $ cmap $ \(Villager, IdlePoint ip, Entity e2) -> if e2 == ety2 then IdlePoint pos else IdlePoint ip
+    Control.Monad.when (e1 == ety1) $ cmap $ \(Villager _, IdlePoint ip, Entity e2) -> if e2 == ety2 then IdlePoint pos else IdlePoint ip

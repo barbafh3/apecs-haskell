@@ -25,6 +25,7 @@ executable apecs-test
                        Collisions
                        Input
                        Draw
+                       Buildings
   -- other-extensions:
   build-depends:       base >=4.14 && <4.15
 					  ,linear

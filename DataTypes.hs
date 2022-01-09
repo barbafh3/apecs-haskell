@@ -1,15 +1,17 @@
-module DataTypes (Pair(..), StorageList(..), DrawLevels(..)) where
+module DataTypes (StorageItem(..), StorageList(..), DrawLevels(..), EntityState(..)) where
 
-type Pair = (String, Int)
+type StorageItem = (String, Int)
 
-type StorageList = [Pair]
+type StorageList = [StorageItem]
 
 data DrawLevels = Default | DrawCollision | DrawParticles | DrawAll | DrawDebug deriving (Show, Eq)
+
+data EntityState = Idle | Carrying | Loading | Constructing | Enabled | Disabled deriving (Show, Eq)
 
 emptyStorageList :: StorageList
 emptyStorageList = [("Wood", 0)]
 
-addToStorage :: Pair -> StorageList -> StorageList
+addToStorage :: StorageItem -> StorageList -> StorageList
 addToStorage item [] = [item]
 addToStorage item [pair]
     | fst pair == fst item = [(fst pair, snd pair + snd item)]
@@ -18,7 +20,7 @@ addToStorage item (pair : list)
     | fst pair == fst item = (fst pair, snd pair + snd item) : addToStorage item list
     | otherwise = addToStorage item list
 
-removeFromStorage :: Pair -> StorageList -> StorageList
+removeFromStorage :: StorageItem -> StorageList -> StorageList
 removeFromStorage item [] = [item]
 removeFromStorage item [pair]
     | fst pair == fst item = if snd pair - snd item <= 0 

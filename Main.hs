@@ -21,8 +21,8 @@ import Components
 import Particles (stepParticles, spawnParticles, stepParticlePositions)
 import Constants
 import Tilemap (createTilemap)
-import Villagers (idleTick, checkIdleTimer, idleMove, updateVillagerCollisions)
-import DataTypes (DrawLevels(..))
+import Villagers (idleTick, checkIdleTimer, updateVillagerCollisions, updateVillagers)
+import DataTypes (DrawLevels(..), EntityState (Idle))
 import Apecs.Physics (Collision(Collision))
 import Utils (gget, translate', truncate')
 import Input (handleEvent)
@@ -34,17 +34,20 @@ windowConfig = InWindow "ApecsTest" (1280, 900) (10, 10)
 initialize ::StdGen ->  System' ()
 initialize rng = do
   newEntity GlobalUnique
-  replicateM_ 2 $
+  replicateM_ 1 $
     newEntity (
-      Villager,
-      (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+      Hauler,
+      (Villager Idle,
+      (StorageSpace [("Wood", 20)],
+      (Backpack Nothing,
+      (HaulTask Nothing Nothing Nothing,
+      (BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
+      (IdleMovement 20 3.0 0.0,
+      (IdlePoint $ V2 0.0 0.0,
       (Position $ V2 0.0 0.0,
-      BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
-      IdleMovement 20 3.0 0.0,
-      IdlePoint $ V2 0.0 0.0,
-      Velocity $ V2 60.0 60.0,
-      StorageSpace [("Wood", 20)],
-      TargetPosition Nothing)))
+      (Velocity $ V2 60.0 60.0,
+      (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+      TargetPosition Nothing)))))))))))
   newEntity (
       Building,
       EntityName "House",
@@ -72,22 +75,15 @@ main = do
   let (rng', tilemap) = createTilemap rng maybeTileset
   runWith w $ do
     initialize rng
-    play windowConfig white targetFps (draw maybeTileset tilemap) handleEvent (step rng)
+    play windowConfig (makeColorI 116 210 102 255) targetFps (draw maybeTileset tilemap) handleEvent (step rng)
 
 step :: StdGen -> Float -> System' ()
-step rng dt = do
-  -- liftIO $ print $ truncate' 4 dt
+step rng dT = do
   drawLevel <- gget @DrawLevel
-  Control.Monad.when (drawLevel == DrawLevel DrawAll || drawLevel == DrawLevel DrawParticles) spawnParticles
-  -- rand <- randomIO
-  -- liftIO $ print $ show $ truncate' 4 (rand :: Float)
-  -- liftIO $ print (rand > (0.5 :: Float))
-  idleTick dt
-  checkIdleTimer dt
-  idleMove dt
-  stepParticles dt
-  stepParticlePositions dt
-  updateVillagerCollisions dt
+  Control.Monad.when (drawLevel == DrawLevel DrawAll || drawLevel == DrawLevel DrawParticles) $ spawnParticles 1
+  updateVillagers dT
+  stepParticles dT
+  stepParticlePositions dT
 
 
 printBuildingNames :: System' ()

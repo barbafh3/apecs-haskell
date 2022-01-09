@@ -9,25 +9,17 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Components(
-    Position(..), 
-    TargetPosition(..), 
-    Velocity(..), 
+    Position(..), TargetPosition(..), IdlePoint(..),
+    Velocity(..), Kinetic(..), IdleMovement(..),
     Particle(..), 
-    MousePosition(..), 
-    GlobalUnique(..), 
-    Kinetic(..), 
-    Villager(..),
-    IdleMovement(..),
-    IdlePoint(..),
-    Rng(..),
+    MousePosition(..), Rng(..), GlobalUnique(..), 
+    Villager(..), Hauler(..), Builder(..),
+    Building(..), StorageSpace(..), Backpack(..),
+    BoundingBox(..), InteractionBox(..),
+    DrawLevel(..), InfoPanel(..),
+    EntityName(..), Origin(..), Destination(..),
+    HaulTask(..),
     Sprite(..),
-    Building(..),
-    StorageSpace(..),
-    BoundingBox(..),
-    InteractionBox(..),
-    DrawLevel(..),
-    InfoPanel(..),
-    EntityName(..),
     System',
     World,
     initWorld'
@@ -43,7 +35,7 @@ import Data.Monoid
 import Data.Semigroup (Semigroup)
 import Graphics.Gloss.Juicy (loadJuicyPNG)
 import Graphics.Gloss (Rectangle(Rectangle))
-import DataTypes (StorageList, DrawLevels (Default))
+import DataTypes (StorageList, DrawLevels (Default), EntityState, StorageItem)
 
 newtype Position = Position (V2 Float) deriving Show
 instance Component Position where type Storage Position = Map Position
@@ -65,7 +57,7 @@ instance Component MousePosition where type Storage MousePosition = Global Mouse
 data GlobalUnique = GlobalUnique deriving Show
 instance Component GlobalUnique where type Storage GlobalUnique = Unique GlobalUnique
 
-data Villager = Villager deriving Show
+newtype Villager = Villager EntityState deriving Show
 instance Component Villager where type Storage Villager = Map Villager
 
 data IdleMovement = IdleMovement Float Float Float deriving Show
@@ -80,8 +72,20 @@ instance Component Sprite where type Storage Sprite = Map Sprite
 data Building = Building deriving Show
 instance Component Building where type Storage Building = Map Building
 
+data Hauler = Hauler deriving Show
+instance Component Hauler where type Storage Hauler = Map Hauler
+
+data Builder = Builder deriving Show
+instance Component Builder where type Storage Builder = Map Builder
+
 newtype StorageSpace = StorageSpace StorageList deriving Show
 instance Component StorageSpace where type Storage StorageSpace = Map StorageSpace
+
+newtype Backpack = Backpack (Maybe StorageItem) deriving Show
+instance Component Backpack where type Storage Backpack = Map Backpack
+
+data HaulTask = HaulTask (Maybe StorageItem) (Maybe Int) (Maybe Int) deriving Show
+instance Component HaulTask where type Storage HaulTask = Map HaulTask
 
 newtype Rng = Rng StdGen deriving Show
 instance Semigroup Rng where (<>) = mappend
@@ -102,6 +106,12 @@ instance Component InteractionBox where type Storage InteractionBox = Map Intera
 newtype EntityName = EntityName String deriving Show
 instance Component EntityName where type Storage EntityName = Map EntityName
 
+newtype Origin = Origin Int deriving Show
+instance Component Origin where type Storage Origin = Map Origin
+
+newtype Destination = Destination Int deriving Show
+instance Component Destination where type Storage Destination = Map Destination
+
 data InfoPanel = InfoPanel Bool String  deriving Show
 instance Semigroup InfoPanel where (<>) = mappend
 instance Monoid InfoPanel where mempty = InfoPanel False ""
@@ -109,11 +119,11 @@ instance Component InfoPanel where type Storage InfoPanel = Global InfoPanel
 
 type Kinetic = (Position, Velocity)
 
-
 makeWorld "World" [
     ''Position, ''Velocity, ''Particle, ''MousePosition, ''GlobalUnique, ''Camera, ''Villager,
     ''IdleMovement, ''TargetPosition, ''IdlePoint, ''Rng, ''Sprite, ''Building, ''StorageSpace,
-    ''BoundingBox, ''DrawLevel, ''InteractionBox, ''InfoPanel, ''EntityName]
+    ''BoundingBox, ''DrawLevel, ''InteractionBox, ''InfoPanel, ''EntityName, ''Hauler, ''Origin,
+    ''Destination, '' Builder, ''Backpack, ''HaulTask]
 
 type System' a = System World a
 

@@ -13,13 +13,11 @@ draw mts tilemap =
         drawLevel <- gget @DrawLevel
         (InfoPanel infoPanelEnabled infoPanelText) <- gget @InfoPanel
         villagers <- foldDraw $
-            \(Villager, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
+            \(Villager _, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
         buildings <- foldDraw $
             \(Building, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
-        particles <- case drawLevel of
-                       level | level == DrawLevel DrawParticles || level == DrawLevel DrawAll -> foldDraw $
-                                  \(Particle t, Velocity (V2 vx vy), Position (V2 px py)) -> translate px py $ color black $ circleSolid t
-                             | otherwise -> return blank
+        particles <- foldDraw $ 
+            \(Particle t, Velocity (V2 vx vy), Position (V2 px py)) -> translate px py $ color (makeColorI 100 60 2 200) $ circleSolid t
         collision <- case drawLevel of
                        level | level == DrawLevel DrawCollision || level == DrawLevel DrawAll -> foldDraw $
                                   \(BoundingBox (V2 x y) (V2 w h)) -> translate x y $ color (makeColor 1.0 0.0 0.0 0.3) $ rectangleSolid w h
@@ -29,7 +27,7 @@ draw mts tilemap =
                                   \(InteractionBox (V2 x y) (V2 w h)) -> translate x y $ color (makeColor 0.0 0.0 1.0 0.3) $ rectangleSolid w h
                              | otherwise -> return blank
         ui <- if infoPanelEnabled then pure $ drawBoxWithText infoPanelText else pure blank
-        return $ Pictures [tilemap] <> buildings <> villagers <> particles <> collision <> interaction <> ui
+        return $ Pictures [] <> buildings <> villagers <> particles <> collision <> interaction <> ui
     _ -> return blank
 
 
