@@ -6,7 +6,7 @@ import Linear (V2(V2))
 import Utils (gget, translate')
 import DataTypes (DrawLevels(..))
 
-draw :: Maybe Picture -> [Picture] -> System' Picture
+draw :: Maybe Picture -> Picture -> System' Picture
 draw mts tilemap =
   case mts of
     Just (Bitmap ts) -> do
@@ -29,7 +29,7 @@ draw mts tilemap =
                                   \(InteractionBox (V2 x y) (V2 w h)) -> translate x y $ color (makeColor 0.0 0.0 1.0 0.3) $ rectangleSolid w h
                              | otherwise -> return blank
         ui <- if infoPanelEnabled then pure $ drawBoxWithText infoPanelText else pure blank
-        return $ Pictures tilemap <> buildings <> villagers <> particles <> collision <> interaction <> ui
+        return $ Pictures [tilemap] <> buildings <> villagers <> particles <> collision <> interaction <> ui
     _ -> return blank
 
 

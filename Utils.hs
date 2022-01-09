@@ -1,6 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
-module Utils ((<+>), (<->), vectorLength, normalizeVector, gget, translate') where
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+module Utils ((<+>), (<->), vectorLength, normalizeVector, gget, translate', truncate') where
 import Linear (V2(V2))
 import Apecs.Core
 import Apecs.Gloss
@@ -29,3 +30,11 @@ gget = get global
 
 translate' :: Position -> Picture -> Picture
 translate' (Position (V2 x y)) = translate x y
+
+truncate' decimals number = let
+    toFloat n  = read n :: Float
+    totalChars = (+) (decimals+1) $ getPos '.' (show number) 0
+        where getPos c (x:xs) n
+                  | x == c    = n
+                  | otherwise = getPos c xs n+1
+    in toFloat $ take totalChars $ show number

@@ -5,6 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 import Apecs
 import Apecs.Gloss
@@ -23,41 +24,43 @@ import Tilemap (createTilemap)
 import Villagers (idleTick, checkIdleTimer, idleMove, updateVillagerCollisions)
 import DataTypes (DrawLevels(..))
 import Apecs.Physics (Collision(Collision))
-import Utils (gget, translate')
+import Utils (gget, translate', truncate')
 import Input (handleEvent)
 import Draw (draw)
+import Text.Printf (printf)
 
 windowConfig = InWindow "ApecsTest" (1280, 900) (10, 10)
 
 initialize ::StdGen ->  System' ()
 initialize rng = do
   newEntity GlobalUnique
-  replicateM_ 0 $ do
+  replicateM_ 2 $
     newEntity (
-        Villager,
-        (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
-        (Position $ V2 0.0 0.0,
-        BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
-        IdleMovement 20 3.0 0.0,
-        IdlePoint $ V2 0.0 0.0,
-        Velocity $ V2 60.0 60.0,
-        StorageSpace [("Wood", 20)],
-        TargetPosition Nothing)))
-  newEntity (
-      Building,
-      EntityName "Idle Point",
-      Sprite $ Rectangle (2 * tileSize, 6 * tileSize) defaultRectSize,
-      InteractionBox (V2 0.0 0.0) defaultRectSizeV2,
-      Position $ V2 0.0 0.0)
+      Villager,
+      (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+      (Position $ V2 0.0 0.0,
+      BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
+      IdleMovement 20 3.0 0.0,
+      IdlePoint $ V2 0.0 0.0,
+      Velocity $ V2 60.0 60.0,
+      StorageSpace [("Wood", 20)],
+      TargetPosition Nothing)))
   newEntity (
       Building,
       EntityName "House",
       Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
       InteractionBox (V2 100.0 20.0) defaultRectSizeV2,
       Position $ V2 100.0 20.0)
+  newEntity (
+      Building,
+      EntityName "Idle Point",
+      Sprite $ Rectangle (2 * tileSize, 6 * tileSize) defaultRectSize,
+      InteractionBox (V2 0.0 0.0) defaultRectSizeV2,
+      Position $ V2 0.0 0.0)
   newEntity $ Rng rng
   newEntity $ DrawLevel Default
   newEntity $ InfoPanel False ""
+  printBuildingNames
   return ()
 
 main :: IO ()
@@ -69,17 +72,23 @@ main = do
   let (rng', tilemap) = createTilemap rng maybeTileset
   runWith w $ do
     initialize rng
-    play windowConfig white 60 (draw maybeTileset tilemap) handleEvent (step rng)
+    play windowConfig white targetFps (draw maybeTileset tilemap) handleEvent (step rng)
 
 step :: StdGen -> Float -> System' ()
 step rng dt = do
+  -- liftIO $ print $ truncate' 4 dt
   drawLevel <- gget @DrawLevel
-  case drawLevel of
-    level | level == DrawLevel DrawAll && level == DrawLevel DrawParticles -> spawnParticles
-          | otherwise -> return ()
+  Control.Monad.when (drawLevel == DrawLevel DrawAll || drawLevel == DrawLevel DrawParticles) spawnParticles
+  -- rand <- randomIO
+  -- liftIO $ print $ show $ truncate' 4 (rand :: Float)
+  -- liftIO $ print (rand > (0.5 :: Float))
   idleTick dt
   checkIdleTimer dt
   idleMove dt
   stepParticles dt
   stepParticlePositions dt
   updateVillagerCollisions dt
+
+
+printBuildingNames :: System' ()
+printBuildingNames = cmapM_ $ \(Building, EntityName name, Entity e) -> liftIO $ print $ "Name: " ++ name ++ " - Entity: " ++ show e

@@ -7,13 +7,17 @@ module Constants (
     tileSizeF,
     defaultRectSize,
     defaultRectSizeV2,
-    tilesetPath
+    tilesetPath,
+    targetFps
 ) where
 import Linear (V2(V2))
 
 screenWidth, screenHeight :: Int
 screenWidth = 1280
 screenHeight = 900
+
+targetFps :: Int
+targetFps = 60
 
 tileSize = 16
 tileSizeF = 16.0

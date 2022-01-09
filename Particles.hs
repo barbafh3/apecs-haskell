@@ -19,8 +19,9 @@ spawnParticles :: System' ()
 spawnParticles = do
   MousePosition (V2 x y) <- gget @MousePosition
   replicateM_ 1 $ do
-    vx <- liftIO $ (/ 10.0) <$> randomRIO (0.0, 20.0)
-    vy <- liftIO $ randomRIO (2.0, 3.0)
+    rand <- randomIO
+    vx <- if (rand :: Float) > 0.5 then randomRIO (0.0, 60.0) else (*(-1)) <$> randomRIO (0.0, 60.0)
+    vy <- liftIO $ randomRIO (60.0, 80.0)
     t  <- liftIO $ randomRIO (4.0, 6.0)
     newEntity (Particle t, Position (V2 x y), Velocity (V2 (vx - 1.0) vy))
 
@@ -31,8 +32,8 @@ stepParticles dT = cmap $ \(Particle t) ->
      else Left  $ Particle (t - 0.1)
 
 
-gget :: forall c w m . (Has w m c, Apecs.Core.ExplGet m (Storage c)) => SystemT w m c 
+gget :: forall c w m . (Has w m c, Apecs.Core.ExplGet m (Storage c)) => SystemT w m c
 gget = Apecs.get global
 
 stepParticlePositions :: Float -> System' ()
-stepParticlePositions dT = cmap $ \(Particle t, Position p, Velocity (V2 vx vy)) -> (Position (p + V2 vx vy), Velocity (V2 vx (vy - 0.1)))
+stepParticlePositions dT = cmap $ \(Particle t, Position p, Velocity (V2 vx vy)) -> (Position (p + ( (* dT) <$> V2 vx vy)), Velocity (V2 vx (vy - 2.0)))

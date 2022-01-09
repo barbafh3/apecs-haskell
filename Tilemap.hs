@@ -6,9 +6,11 @@ import Constants
 import System.Random.Stateful (uniformM)
 import Control.Applicative
 
-createTilemap :: StdGen -> Maybe Picture -> (StdGen, [Picture])
-createTilemap rng (Just ts) = iterateOverCoords rng ts (combineIntoTuple [0..horizontalTileCount + 1] [0..verticalTileCount])
-createTilemap rng Nothing = (rng, [])
+createTilemap :: StdGen -> Maybe Picture -> (StdGen, Picture)
+createTilemap rng (Just ts) = (rng', Pictures tiles)
+  where
+    (rng', tiles) = iterateOverCoords rng ts (combineIntoTuple [0..horizontalTileCount + 1] [0..verticalTileCount])
+createTilemap rng Nothing = (rng, blank)
 
 iterateOverCoords :: StdGen -> Picture -> [(Float, Float)] -> (StdGen, [Picture])
 iterateOverCoords rng (Bitmap ts) [] = (rng, [])
