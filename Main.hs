@@ -22,7 +22,7 @@ import Particles (stepParticles, spawnParticles, stepParticlePositions)
 import Constants
 import Tilemap (createTilemap)
 import Villagers (idleTick, checkIdleTimer, updateVillagerCollisions, updateVillagers)
-import DataTypes (DrawLevels(..), EntityState (Idle))
+import DataTypes (DrawLevels(..), EntityState (Idle, Carrying))
 import Apecs.Physics (Collision(Collision))
 import Utils (gget, translate', truncate')
 import Input (handleEvent)
@@ -37,23 +37,24 @@ initialize rng = do
   replicateM_ 1 $
     newEntity (
       Hauler,
-      (Villager Idle,
-      (StorageSpace [("Wood", 20)],
-      (Backpack Nothing,
-      (HaulTask Nothing Nothing Nothing,
+      (Villager Carrying,
+      (Backpack $ Just ("Wood", 20),
+      (HaulTask (Just ("Wood", 20)) Nothing $ Just 2,
       (BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
       (IdleMovement 20 3.0 0.0,
       (IdlePoint $ V2 0.0 0.0,
       (Position $ V2 0.0 0.0,
       (Velocity $ V2 60.0 60.0,
       (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
-      TargetPosition Nothing)))))))))))
+      TargetPosition Nothing))))))))))
   newEntity (
       Building,
       EntityName "House",
       Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
-      InteractionBox (V2 100.0 20.0) defaultRectSizeV2,
-      Position $ V2 100.0 20.0)
+      StorageSpace [("Wood", 20)],
+      BoundingBox (V2 300.0 200.0) (V2 8.0 8.0),
+      InteractionBox (V2 300.0 200.0) defaultRectSizeV2,
+      Position $ V2 300.0 200.0)
   newEntity (
       Building,
       EntityName "Idle Point",

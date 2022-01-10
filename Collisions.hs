@@ -1,7 +1,8 @@
-module Collisions (isInsideBoundingBox, isInsideInteractionBox) where
+module Collisions (isInsideBoundingBox, isInsideInteractionBox, areBoxesColliding) where
 import Linear (V2 (V2))
 import Graphics.Gloss (Rectangle (Rectangle))
 import Components (BoundingBox (BoundingBox), InteractionBox (InteractionBox))
+import Debug.Trace (trace)
 
 
 isInsideBoundingBox :: V2 Float -> BoundingBox -> Bool
@@ -16,6 +17,6 @@ isInsideInteractionBox (V2 x y) (InteractionBox (V2 bx by) (V2 bw bh))
 
 
 areBoxesColliding :: BoundingBox -> BoundingBox -> Bool
-areBoxesColliding (BoundingBox (V2 x1 y1) (V2 w1 h1)) (BoundingBox (V2 x2 y2) (V2 w2 h2))
+areBoxesColliding box1@(BoundingBox (V2 x1 y1) (V2 w1 h1)) box2@(BoundingBox (V2 x2 y2) (V2 w2 h2))
     | x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2 = True
     | otherwise = False

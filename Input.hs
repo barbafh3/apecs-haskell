@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeApplications #-}
+
 module Input(handleEvent) where
 import Components
 import DataTypes (DrawLevels(..))
@@ -38,14 +39,14 @@ handleEvent (EventKey (SpecialKey KeyF9) Down _ _) = do
 handleEvent (EventKey (SpecialKey KeyF7) Down _ _) = changeIdlePoint 3 1
 
 handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) =
-  cmapM_ $ \(Position p, InteractionBox pos size, EntityName name, Entity e) -> do
+  cmapM_ $ \(Position p, InteractionBox pos size, StorageSpace storage, Entity e) -> do
     (InfoPanel _ text) <- gget @InfoPanel
     let newPos = pos - (defaultRectSizeV2 / 2)
     if isInsideInteractionBox (V2 x y) (InteractionBox newPos size)
         then do
-              set global $ InfoPanel True name
+              set global $ InfoPanel True $ show storage
               spawnParticles 5
-            else Control.Monad.when (text == name) $ set global $ InfoPanel False ""
+            else Control.Monad.when (text == show storage) $ set global $ InfoPanel False ""
 
 handleEvent _ = return ()
 
