@@ -87,6 +87,9 @@ instance Component Backpack where type Storage Backpack = Map Backpack
 data HaulTask = HaulTask StorageItem Int Int deriving Show
 instance Component HaulTask where type Storage HaulTask = Map HaulTask
 
+data BuildTask = BuildTask StorageItem Int Int deriving Show
+instance Component BuildTask where type Storage BuildTask = Map BuildTask
+
 newtype Rng = Rng StdGen deriving Show
 instance Semigroup Rng where (<>) = mappend
 instance Monoid Rng where mempty = Rng $ mkStdGen 1
@@ -117,13 +120,16 @@ instance Semigroup InfoPanel where (<>) = mappend
 instance Monoid InfoPanel where mempty = InfoPanel Nothing
 instance Component InfoPanel where type Storage InfoPanel = Global InfoPanel
 
+data BuildingRequest = BuildingRequest StorageItem Entity deriving Show
+instance Component BuildingRequest where type Storage BuildingRequest = Map BuildingRequest
+
 type Kinetic = (Position, Velocity)
 
 makeWorld "World" [
     ''Position, ''Velocity, ''Particle, ''MousePosition, ''GlobalUnique, ''Camera, ''Villager,
     ''IdleMovement, ''TargetPosition, ''IdlePoint, ''Rng, ''Sprite, ''Building, ''StorageSpace,
     ''BoundingBox, ''DrawLevel, ''InteractionBox, ''InfoPanel, ''EntityName, ''Hauler, ''Origin,
-    ''Destination, '' Builder, ''Backpack, ''HaulTask]
+    ''Destination, '' Builder, ''Backpack, ''HaulTask, ''BuildingRequest]
 
 type System' a = System World a
 

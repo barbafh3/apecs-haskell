@@ -53,4 +53,8 @@ resourceCount resource (pair : list)
     | otherwise = resourceCount resource list
 
 
+runBuildingTask :: System' ()
+runBuildingTask = undefined
+
+
 
