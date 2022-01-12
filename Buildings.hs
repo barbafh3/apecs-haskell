@@ -23,18 +23,20 @@ addToStorage (Just item) (pair : list)
     | otherwise = addToStorage (Just item) list
 addToStorage Nothing (pair : list) = pair : list
 
-removeFromStorage :: StorageItem -> StorageList -> StorageList
-removeFromStorage item [] = [item]
-removeFromStorage item [pair]
+removeFromStorage :: Maybe StorageItem -> StorageList -> StorageList
+removeFromStorage Nothing [] = []
+removeFromStorage (Just item) [] = [item]
+removeFromStorage (Just item) [pair]
     | fst pair == fst item = if snd pair - snd item <= 0 
                                then [(fst pair, 0)]
                                  else [(fst pair, snd pair - snd item)]
     | otherwise = [pair]
-removeFromStorage item (pair : list)
+removeFromStorage (Just item) (pair : list)
     | fst pair == fst item = if snd pair - snd item <= 0 
-                               then (fst pair, 0) : removeFromStorage item list 
-                                 else (fst pair, snd pair - snd item) : removeFromStorage item list 
-    | otherwise = removeFromStorage item list
+                               then (fst pair, 0) : removeFromStorage (Just item) list 
+                                 else (fst pair, snd pair - snd item) : removeFromStorage (Just item) list 
+    | otherwise = removeFromStorage (Just item) list
+removeFromStorage Nothing (pair : list) = pair : list
 
 totalUsage :: StorageList -> Int
 totalUsage [] = 0

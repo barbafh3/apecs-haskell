@@ -40,7 +40,7 @@ import DataTypes (StorageList, DrawLevels (Default), EntityState, StorageItem)
 newtype Position = Position (V2 Float) deriving Show
 instance Component Position where type Storage Position = Map Position
 
-newtype TargetPosition = TargetPosition (Maybe (V2 Float)) deriving Show
+newtype TargetPosition = TargetPosition (V2 Float) deriving Show
 instance Component TargetPosition where type Storage TargetPosition = Map TargetPosition
 
 newtype Velocity = Velocity (V2 Float) deriving Show
@@ -84,7 +84,7 @@ instance Component StorageSpace where type Storage StorageSpace = Map StorageSpa
 newtype Backpack = Backpack (Maybe StorageItem) deriving Show
 instance Component Backpack where type Storage Backpack = Map Backpack
 
-data HaulTask = HaulTask (Maybe StorageItem) (Maybe Int) (Maybe Int) deriving Show
+data HaulTask = HaulTask StorageItem Int Int deriving Show
 instance Component HaulTask where type Storage HaulTask = Map HaulTask
 
 newtype Rng = Rng StdGen deriving Show
@@ -112,9 +112,9 @@ instance Component Origin where type Storage Origin = Map Origin
 newtype Destination = Destination Int deriving Show
 instance Component Destination where type Storage Destination = Map Destination
 
-data InfoPanel = InfoPanel Bool String  deriving Show
+newtype InfoPanel = InfoPanel (Maybe Entity) deriving Show
 instance Semigroup InfoPanel where (<>) = mappend
-instance Monoid InfoPanel where mempty = InfoPanel False ""
+instance Monoid InfoPanel where mempty = InfoPanel Nothing
 instance Component InfoPanel where type Storage InfoPanel = Global InfoPanel
 
 type Kinetic = (Position, Velocity)
