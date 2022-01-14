@@ -29,32 +29,36 @@ import Input (handleEvent)
 import Draw (draw)
 import Graphics.UI.GLUT (stringWidth, fontHeight)
 import Graphics.UI.GLUT.Fonts
+import Buildings (updateBuildings, spawnHouse)
 
 windowConfig = InWindow "ApecsTest" (1280, 900) (10, 10)
 
 initialize ::StdGen ->  System' ()
 initialize rng = do
   newEntity GlobalUnique
-  replicateM_ 2 $
-    newEntity (
-      Hauler,
-      (Villager Idle,
-      (Backpack Nothing,
-      (BoundingBox (V2 0.0 100.0) (V2 8.0 8.0),
-      (IdleMovement 20 3.0 0.0,
-      (IdlePoint $ V2 0.0 0.0,
-      (Position $ V2 0.0 100.0,
-      (Velocity $ V2 60.0 60.0,
-      (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
-      TargetPosition (V2 0.0 0.0))))))))))
+  -- replicateM_ 2 $
   newEntity (
-      Building,
-      EntityName "House",
-      Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
-      StorageSpace [("Wood", 20)],
-      BoundingBox (V2 300.0 200.0) (V2 8.0 8.0),
-      InteractionBox (V2 300.0 200.0) defaultRectSizeV2,
-      Position $ V2 300.0 200.0)
+    Hauler,
+    (Villager Idle,
+    (Backpack Nothing,
+    (BoundingBox (V2 0.0 100.0) (V2 8.0 8.0),
+    (IdleMovement 20 3.0 0.0,
+    (IdlePoint $ V2 0.0 0.0,
+    (Position $ V2 0.0 100.0,
+    (Velocity $ V2 60.0 60.0,
+    (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+    TargetPosition (V2 0.0 0.0))))))))))
+  newEntity (
+    Hauler,
+    (Villager Idle,
+    (Backpack Nothing,
+    (BoundingBox (V2 50.0 100.0) (V2 8.0 8.0),
+    (IdleMovement 20 3.0 0.0,
+    (IdlePoint $ V2 0.0 0.0,
+    (Position $ V2 50.0 100.0,
+    (Velocity $ V2 60.0 60.0,
+    (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+    TargetPosition (V2 0.0 0.0))))))))))
   newEntity (
       Building,
       EntityName "Idle Point",
@@ -75,7 +79,7 @@ initialize rng = do
   newEntity $ InfoPanel Nothing
   printVillagers
   printBuildingNames
-  return ()
+  spawnHouse $ V2 300.0 200.0
 
 main :: IO ()
 main = do
@@ -93,6 +97,7 @@ step rng dT = do
   drawLevel <- gget @DrawLevel
   Control.Monad.when (drawLevel == DrawLevel DrawAll || drawLevel == DrawLevel DrawParticles) $ spawnParticles 1
   updateVillagers dT
+  updateBuildings dT
   stepParticles dT
   stepParticlePositions dT
 

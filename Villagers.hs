@@ -6,8 +6,7 @@ module Villagers (
   checkIdleTimer,
   moveToTarget,
   updateVillagerCollisions,
-  updateVillagers,
-  requestHaulers
+  updateVillagers
 ) where
 import Components
 import System.Random
@@ -148,17 +147,4 @@ reachedPickupDestination = cmapM_ $
                 let newStorage = removeFromStorage (Just item) storage
                 unless (storage == newStorage) do
                     set (Entity orig) $ StorageSpace newStorage
-                    set villager (Backpack $ Just item)
-
-requestHaulers :: HaulTask -> Int -> (Villager, Entity) -> System' Int
-requestHaulers taskParams remainingJobs (Villager state, villager) =
-  if remainingJobs == 0
-    then pure 0
-    else case state of
-      Idle -> do
-          addHaulTask taskParams villager
-          pure (remainingJobs - 1)
-      _ -> pure remainingJobs
-
-addHaulTask :: HaulTask -> Entity -> System' ()
-addHaulTask haul ety = modify ety $ \(Villager state) -> haul
+                    set villager $ Backpack $ Just item

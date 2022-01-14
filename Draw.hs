@@ -18,8 +18,8 @@ draw mts tilemap =
         drawLevel <- gget @DrawLevel
         (InfoPanel infoPanelEntity) <- gget @InfoPanel
         (Villager state, Backpack bp) <- get (Entity 1)
-        (EntityName n2, StorageSpace st2) <- get (Entity 3)
-        (EntityName n3, StorageSpace st3) <- get (Entity 5)
+        (EntityName n2, StorageSpace st2) <- get (Entity 5)
+        (EntityName n3, StorageSpace st3, request) <- get (Entity 3)
         villagers <- foldDraw $
             \(Villager _, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
         buildings <- foldDraw $
@@ -36,6 +36,6 @@ draw mts tilemap =
                              | otherwise -> return blank
         let ui = Pictures [translate 0.0 380 $ color black $ scale 0.1 0.1 $ text (n2 ++ " - Storage: " ++ show st2),
                            translate 0.0 400.0 $ color black $ scale 0.1 0.1 $ text ("Villager state: " ++ show state ++ " - Backpack: " ++ show bp),
-                           translate 0.0 360 $ color black $ scale 0.1 0.1 $ text (n3 ++ " - Storage: " ++ show st3)]
+                           translate 0.0 360 $ color black $ scale 0.1 0.1 $ text (n3 ++ " - Storage: " ++ show st3 ++ " - Request: " ++ show (request :: Maybe HaulRequest))]
         return $ Pictures [] <> buildings <> villagers <> particles <> collision <> interaction <> ui
     _ -> return blank

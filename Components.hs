@@ -11,14 +11,14 @@
 module Components(
     Position(..), TargetPosition(..), IdlePoint(..),
     Velocity(..), Kinetic(..), IdleMovement(..),
-    Particle(..), 
-    MousePosition(..), Rng(..), GlobalUnique(..), 
+    Particle(..),
+    MousePosition(..), Rng(..), GlobalUnique(..),
     Villager(..), Hauler(..), Builder(..),
     Building(..), StorageSpace(..), Backpack(..),
     BoundingBox(..), InteractionBox(..),
     DrawLevel(..), InfoPanel(..),
     EntityName(..), Origin(..), Destination(..),
-    HaulTask(..),
+    HaulTask(..), HaulRequest(..),
     Sprite(..),
     System',
     World,
@@ -120,8 +120,14 @@ instance Semigroup InfoPanel where (<>) = mappend
 instance Monoid InfoPanel where mempty = InfoPanel Nothing
 instance Component InfoPanel where type Storage InfoPanel = Global InfoPanel
 
-data BuildingRequest = BuildingRequest StorageItem Entity deriving Show
-instance Component BuildingRequest where type Storage BuildingRequest = Map BuildingRequest
+data HaulRequest = HaulRequest StorageItem Int deriving Show
+instance Component HaulRequest where type Storage HaulRequest = Map HaulRequest
+
+data ConstructRequest = ConstructRequest deriving Show
+instance Component ConstructRequest where type Storage ConstructRequest = Map ConstructRequest
+
+-- data Request = Request HaulRequest | Request ConstructRequest deriving Show
+-- instance Component Request where type Storage Request = Map Request
 
 type Kinetic = (Position, Velocity)
 
@@ -129,9 +135,9 @@ makeWorld "World" [
     ''Position, ''Velocity, ''Particle, ''MousePosition, ''GlobalUnique, ''Camera, ''Villager,
     ''IdleMovement, ''TargetPosition, ''IdlePoint, ''Rng, ''Sprite, ''Building, ''StorageSpace,
     ''BoundingBox, ''DrawLevel, ''InteractionBox, ''InfoPanel, ''EntityName, ''Hauler, ''Origin,
-    ''Destination, '' Builder, ''Backpack, ''HaulTask, ''BuildingRequest]
+    ''Destination, '' Builder, ''Backpack, ''HaulTask, ''HaulRequest]
 
 type System' a = System World a
 
-initWorld' = initWorld 
+initWorld' = initWorld
 

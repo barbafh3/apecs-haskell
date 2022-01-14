@@ -16,7 +16,7 @@ import Graphics.Gloss.Interface.IO.Interact
 import Linear (V2 (V2))
 import Particles (spawnParticles)
 import Utils (gget)
-import Villagers (requestHaulers)
+import Buildings (requestHaulers)
 
 handleEvent :: Event -> System' ()
 handleEvent (EventMotion (x, y)) = set global $ MousePosition (V2 x y)
@@ -39,9 +39,9 @@ handleEvent (EventKey (SpecialKey KeyF9) Down _ _) = do
     DrawLevel DrawAll -> set global $ DrawLevel Default
     _ -> set global $ DrawLevel DrawAll
 
-handleEvent (EventKey (SpecialKey KeyF7) Down _ _) = changeIdlePoint 3 1
-handleEvent (EventKey (SpecialKey KeyF6) Down _ _) = do
-  cfoldM_ (requestHaulers $ HaulTask ("Wood", 20) 5 3) 2
+-- handleEvent (EventKey (SpecialKey KeyF7) Down _ _) = changeIdlePoint 3 1
+-- handleEvent (EventKey (SpecialKey KeyF6) Down _ _) = do
+--   cfoldM_ (requestHaulers $ HaulTask ("Wood", 20) 5 3) 2
 
 handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) =
   cmapM_ $ \(Position p, InteractionBox pos size, StorageSpace storage, entity) -> do

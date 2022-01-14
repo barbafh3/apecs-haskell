@@ -8,7 +8,8 @@ module Constants (
     defaultRectSize,
     defaultRectSizeV2,
     tilesetPath,
-    targetFps
+    targetFps,
+    haulerCapacity
 ) where
 import Linear (V2(V2))
 
@@ -31,3 +32,6 @@ horizontalTileCount, verticalTileCount :: Float
 horizontalTileCount = 1280 / 16
 verticalTileCount = 900 / 16
 tilesetPath = "tileset.png"
+
+haulerCapacity :: Float
+haulerCapacity = 10.0
