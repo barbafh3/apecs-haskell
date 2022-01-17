@@ -1,11 +1,12 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Utils ((<+>), (<->), vectorLength, normalizeVector, gget, translate', truncate') where
+module Engine.Utils ((<+>), (<->), vectorLength, normalizeVector, gget, translate', truncate') where
+    
 import Linear (V2(V2))
 import Apecs.Core
 import Apecs.Gloss
-import Components (Position (Position))
+import Engine.Components (Position (Position))
 import Apecs (get, global)
 
 sumV2 :: V2 Float -> Float

@@ -1,8 +1,8 @@
-module Tilemap(createTilemap) where
+module Engine.Tilemap(createTilemap) where
 
 import Graphics.Gloss
 import System.Random
-import Constants
+import Engine.Constants
 import System.Random.Stateful (uniformM)
 import Control.Applicative
 

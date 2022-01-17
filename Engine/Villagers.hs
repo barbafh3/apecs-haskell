@@ -1,25 +1,26 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE LambdaCase     #-}
 
-module Villagers (
+module Engine.Villagers (
   idleTick,
   checkIdleTimer,
   moveToTarget,
   updateVillagerCollisions,
   updateVillagers
 ) where
-import Components
+
+import Engine.Components
 import System.Random
 import Apecs.Physics (V2(V2))
 import Apecs
-import Utils (vectorLength, normalizeVector)
+import Engine.Utils (vectorLength, normalizeVector)
 import Debug.Trace (trace)
 import Graphics.Gloss (Rectangle(Rectangle))
-import DataTypes(EntityState(..))
+import Engine.DataTypes(EntityState(..))
 import qualified Control.Monad
-import Buildings (addToStorage, removeFromStorage)
+import Engine.Buildings (addToStorage, removeFromStorage)
 import Data.Maybe (isNothing, isJust)
-import Collisions (areBoxesColliding)
+import Engine.Collisions (areBoxesColliding)
 import Control.Monad (when, unless)
 import Data.Foldable (forM_)
 

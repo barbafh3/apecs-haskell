@@ -9,27 +9,26 @@
 
 import Apecs
 import Apecs.Gloss
+import Apecs.Physics (Collision(Collision))
 import Linear
 import System.Random
 import System.Exit
 import Control.Monad
-import Data.Monoid
 import Data.Semigroup (Semigroup)
 import Graphics.Gloss.Juicy (loadJuicyPNG)
 import Graphics.Gloss (Rectangle(Rectangle))
-import Components
-import Particles (stepParticles, spawnParticles, stepParticlePositions)
-import Constants
-import Tilemap (createTilemap)
-import Villagers (idleTick, checkIdleTimer, updateVillagerCollisions, updateVillagers)
-import DataTypes (DrawLevels(..), EntityState (Idle, Carrying, Loading))
-import Apecs.Physics (Collision(Collision))
-import Utils (gget, translate', truncate')
-import Input (handleEvent)
-import Draw (draw)
 import Graphics.UI.GLUT (stringWidth, fontHeight)
 import Graphics.UI.GLUT.Fonts
-import Buildings (updateBuildings, spawnHouse)
+import Engine.Components
+import Engine.Particles (stepParticles, spawnParticles, stepParticlePositions)
+import Engine.Constants
+import Engine.Tilemap (createTilemap)
+import Engine.Villagers (idleTick, checkIdleTimer, updateVillagerCollisions, updateVillagers)
+import Engine.DataTypes (DrawLevels(..), EntityState (Idle, Carrying, Loading))
+import Engine.Utils (gget, translate', truncate')
+import Engine.Input (handleEvent)
+import Engine.Draw (draw)
+import Engine.Buildings (updateBuildings, spawnHouse)
 
 windowConfig = InWindow "ApecsTest" (1280, 900) (10, 10)
 
@@ -59,6 +58,7 @@ initialize rng = do
     (Velocity $ V2 60.0 60.0,
     (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
     TargetPosition (V2 0.0 0.0))))))))))
+  spawnHouse $ V2 300.0 200.0
   newEntity (
       Building,
       EntityName "Idle Point",
@@ -74,12 +74,20 @@ initialize rng = do
       InteractionBox (V2 (-300.0) 50.0) defaultRectSizeV2,
       StorageSpace [("Wood", 100)],
       Position $ V2 (-300.0) 50.0)
+  newEntity (
+      Button False,
+      Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
+      InteractionBox (V2 (-500.0) (-400.0)) (defaultRectSizeV2 * 2),
+      Position $ V2 (-500.0) (-400.0))
   newEntity $ Rng rng
   newEntity $ DrawLevel Default
   newEntity $ InfoPanel Nothing
+  maybeWhiteFont <- liftIO $ loadJuicyPNG whiteFontPath
+  maybeBlackFont <- liftIO $ loadJuicyPNG blackFontPath
+  newEntity $ WhiteFont maybeWhiteFont
+  newEntity $ BlackFont maybeBlackFont
   printVillagers
   printBuildingNames
-  spawnHouse $ V2 300.0 200.0
 
 main :: IO ()
 main = do
@@ -95,7 +103,7 @@ main = do
 step :: StdGen -> Float -> System' ()
 step rng dT = do
   drawLevel <- gget @DrawLevel
-  Control.Monad.when (drawLevel == DrawLevel DrawAll || drawLevel == DrawLevel DrawParticles) $ spawnParticles 1
+  Control.Monad.when (drawLevel == DrawLevel All || drawLevel == DrawLevel Particles) $ spawnParticles 1
   updateVillagers dT
   updateBuildings dT
   stepParticles dT

@@ -6,9 +6,9 @@
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE TypeFamilies               #-}
 
-module Particles(spawnParticles, stepParticles, stepParticlePositions) where
+module Engine.Particles(spawnParticles, stepParticles, stepParticlePositions) where
 
-import Components
+import Engine.Components
 import Linear
 import Apecs
 import System.Random

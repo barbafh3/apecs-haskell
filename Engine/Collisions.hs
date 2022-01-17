@@ -1,7 +1,7 @@
-module Collisions (isInsideBoundingBox, isInsideInteractionBox, areBoxesColliding) where
+module Engine.Collisions (isInsideBoundingBox, isInsideInteractionBox, areBoxesColliding) where
 import Linear (V2 (V2))
 import Graphics.Gloss (Rectangle (Rectangle))
-import Components (BoundingBox (BoundingBox), InteractionBox (InteractionBox))
+import Engine.Components (BoundingBox (BoundingBox), InteractionBox (InteractionBox))
 import Debug.Trace (trace)
 
 

@@ -1,4 +1,4 @@
-module Constants (
+module Engine.Constants (
     screenWidth, 
     screenHeight, 
     horizontalTileCount, 
@@ -8,6 +8,9 @@ module Constants (
     defaultRectSize,
     defaultRectSizeV2,
     tilesetPath,
+    whiteFontPath,
+    blackFontPath,
+    fontCharSize,
     targetFps,
     haulerCapacity
 ) where
@@ -31,7 +34,13 @@ defaultRectSizeV2 = V2 tileSizeF tileSizeF
 horizontalTileCount, verticalTileCount :: Float
 horizontalTileCount = 1280 / 16
 verticalTileCount = 900 / 16
-tilesetPath = "tileset.png"
+
+fontCharSize :: (Int, Int)
+fontCharSize = (10, 16)
+
+tilesetPath = "Assets/tileset.png"
+whiteFontPath = "Assets/my-font-black.png"
+blackFontPath = "Assets/my-font-white.png"
 
 haulerCapacity :: Float
 haulerCapacity = 10.0

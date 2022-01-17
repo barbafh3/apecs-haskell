@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Components(
+module Engine.Components(
     Position(..), TargetPosition(..), IdlePoint(..),
     Velocity(..), Kinetic(..), IdleMovement(..),
     Particle(..),
@@ -19,7 +19,9 @@ module Components(
     DrawLevel(..), InfoPanel(..),
     EntityName(..), Origin(..), Destination(..),
     HaulTask(..), HaulRequest(..),
+    WhiteFont(..), BlackFont(..),
     Sprite(..),
+    Button(..),
     System',
     World,
     initWorld'
@@ -35,7 +37,7 @@ import Data.Monoid
 import Data.Semigroup (Semigroup)
 import Graphics.Gloss.Juicy (loadJuicyPNG)
 import Graphics.Gloss (Rectangle(Rectangle))
-import DataTypes (StorageList, DrawLevels (Default), EntityState, StorageItem)
+import Engine.DataTypes (StorageList, DrawLevels (Default), EntityState, StorageItem)
 
 newtype Position = Position (V2 Float) deriving Show
 instance Component Position where type Storage Position = Map Position
@@ -126,8 +128,18 @@ instance Component HaulRequest where type Storage HaulRequest = Map HaulRequest
 data ConstructRequest = ConstructRequest deriving Show
 instance Component ConstructRequest where type Storage ConstructRequest = Map ConstructRequest
 
--- data Request = Request HaulRequest | Request ConstructRequest deriving Show
--- instance Component Request where type Storage Request = Map Request
+newtype Button = Button Bool deriving Show
+instance Component Button where type Storage Button = Map Button
+
+newtype WhiteFont = WhiteFont (Maybe Picture) deriving Show
+instance Semigroup WhiteFont where (<>) = mappend
+instance Monoid WhiteFont where mempty = WhiteFont $ Just blank
+instance Component WhiteFont where type Storage WhiteFont = Global WhiteFont
+
+newtype BlackFont = BlackFont (Maybe Picture) deriving Show
+instance Semigroup BlackFont where (<>) = mappend
+instance Monoid BlackFont where mempty = BlackFont $ Just blank
+instance Component BlackFont where type Storage BlackFont = Global BlackFont
 
 type Kinetic = (Position, Velocity)
 
@@ -135,7 +147,8 @@ makeWorld "World" [
     ''Position, ''Velocity, ''Particle, ''MousePosition, ''GlobalUnique, ''Camera, ''Villager,
     ''IdleMovement, ''TargetPosition, ''IdlePoint, ''Rng, ''Sprite, ''Building, ''StorageSpace,
     ''BoundingBox, ''DrawLevel, ''InteractionBox, ''InfoPanel, ''EntityName, ''Hauler, ''Origin,
-    ''Destination, '' Builder, ''Backpack, ''HaulTask, ''HaulRequest]
+    ''Destination, '' Builder, ''Backpack, ''HaulTask, ''HaulRequest, ''Button, ''WhiteFont,
+    ''BlackFont]
 
 type System' a = System World a
 

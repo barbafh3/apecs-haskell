@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications           #-}
 
-module Buildings (
+module Engine.Buildings (
   updateBuildings,
   emptyStorageList,
   addToStorage,
@@ -11,11 +11,11 @@ module Buildings (
   spawnHouse
 ) where
 
-import Components
-import DataTypes
+import Engine.Components
+import Engine.DataTypes
 import Apecs
-import Constants (haulerCapacity, tileSize, defaultRectSize, defaultRectSizeV2)
-import Utils (truncate')
+import Engine.Constants (haulerCapacity, tileSize, defaultRectSize, defaultRectSizeV2)
+import Engine.Utils (truncate')
 import Linear (V2(..))
 import Graphics.Gloss (Rectangle(Rectangle))
 
