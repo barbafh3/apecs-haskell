@@ -6,7 +6,8 @@ module Engine.Villagers (
   checkIdleTimer,
   moveToTarget,
   updateVillagerCollisions,
-  updateVillagers
+  updateVillagers,
+  spawnHauler
 ) where
 
 import Engine.Components
@@ -23,6 +24,22 @@ import Data.Maybe (isNothing, isJust)
 import Engine.Collisions (areBoxesColliding)
 import Control.Monad (when, unless)
 import Data.Foldable (forM_)
+import Engine.Constants (tileSize, defaultRectSize)
+
+spawnHauler :: V2 Float -> V2 Float -> V2 Float -> System' ()
+spawnHauler pos idlePoint vel = do
+  newEntity (
+    Hauler,
+    (Villager Idle,
+    (Backpack Nothing,
+    (BoundingBox pos (V2 8.0 8.0),
+    (IdleMovement 20 3.0 0.0,
+    (IdlePoint idlePoint,
+    (Position pos,
+    (Velocity vel,
+    (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
+    TargetPosition (V2 0.0 0.0))))))))))
+  return ()
 
 updateVillagers :: Float ->  System' ()
 updateVillagers dT = do

@@ -8,7 +8,8 @@ module Engine.Buildings (
   totalUsage,
   resourceCount,
   requestHaulers,
-  spawnHouse
+  spawnHouse,
+  spawnStorage
 ) where
 
 import Engine.Components
@@ -29,6 +30,18 @@ spawnHouse pos = do
       StorageSpace [],
       BoundingBox pos (V2 8.0 8.0),
       InteractionBox pos defaultRectSizeV2,
+      Position pos)
+  return ()
+
+spawnStorage :: V2 Float -> [StorageItem] -> System' ()
+spawnStorage pos storage = do
+  newEntity (
+      Building,
+      EntityName "Storage",
+      Sprite $ Rectangle (6 * tileSize, 4 * tileSize) defaultRectSize,
+      BoundingBox pos (V2 8.0 8.0),
+      InteractionBox pos defaultRectSizeV2,
+      StorageSpace storage,
       Position pos)
   return ()
 
@@ -85,7 +98,7 @@ runBuildingTask = cmapM_ $
   \(Building, HaulRequest (resource, requiredamount) amount, building) -> do
     let haulerCount = round $ (fromIntegral requiredamount :: Float) / haulerCapacity
     let (Entity ety) = building
-    cfoldM_ (requestHaulers (HaulTask (resource, ceiling haulerCapacity) 5 ety) building) haulerCount
+    cfoldM_ (requestHaulers (HaulTask (resource, ceiling haulerCapacity) 4 ety) building) haulerCount
 
 requestHaulers :: HaulTask -> Entity -> Int -> (Villager, Entity) -> System' Int
 requestHaulers haul building remainingSpots (Villager state, villager) =

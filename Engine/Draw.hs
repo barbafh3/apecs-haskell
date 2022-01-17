@@ -13,7 +13,7 @@ import Apecs.Core (Entity(Entity))
 import Graphics.Gloss (BitmapData, Rectangle (Rectangle))
 import Engine.Text
 
-draw :: Maybe Picture ->  Picture -> System' Picture
+draw :: Maybe Picture -> Picture -> System' Picture
 draw mts tilemap =
   case mts of
     Just ts'@(Bitmap ts) -> do
@@ -22,9 +22,9 @@ draw mts tilemap =
         BlackFont (Just bFont) -> do
           drawLevel <- gget @DrawLevel
           (InfoPanel infoPanelEntity) <- gget @InfoPanel
-          (Villager state, Backpack bp) <- get (Entity 1)
-          (EntityName n2, StorageSpace st2) <- get (Entity 5)
-          (EntityName n3, StorageSpace st3, request) <- get (Entity 3)
+          (Villager state, Backpack bp) <- get (Entity 0)
+          (EntityName n2, StorageSpace st2) <- get (Entity 4)
+          (EntityName n3, StorageSpace st3, request) <- get (Entity 2)
           villagers <- foldDraw $
               \(Villager _, Sprite rect, Position pos) -> translate' (Position pos) $ BitmapSection rect ts
           buildings <- foldDraw $
@@ -54,7 +54,9 @@ drawDebugUI n2 st2 n3 st3 state request bp font = Pictures [
  drawText (V2 (-600.0) 360) font $ filterText (n3 ++ " - Storage: " ++ show st3 ++ " - Request: " ++ show (request :: Maybe HaulRequest))]
 
 drawUI :: BitmapData -> Picture -> DrawLevel -> System' Picture
-drawUI ts font (DrawLevel level) = foldDraw $ \(Button clicked, Position (V2 x y), Sprite rect@(Rectangle (rx, ry) (rw, rh))) -> Pictures [
+drawUI ts font (DrawLevel level) = foldDraw $ 
+  \(Button clicked, Position (V2 x y), Sprite rect@(Rectangle (rx, ry) (rw, rh))) -> do 
+    Pictures [
             translate x y $ color (getButtonBGColor clicked) $ scale 2.0 2.0 $ rectangleSolid (4.0 + fromIntegral rw) (4.0 + fromIntegral rh),
             translate x y $ color (makeColor 1.0 1.0 1.0 0.2) $ scale 2.0 2.0 $ rectangleSolid (fromIntegral rw) (fromIntegral rh),
             translate x y $ color white $ scale 2.0 2.0 $ BitmapSection rect ts,

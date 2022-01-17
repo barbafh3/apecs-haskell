@@ -23,41 +23,19 @@ import Engine.Components
 import Engine.Particles (stepParticles, spawnParticles, stepParticlePositions)
 import Engine.Constants
 import Engine.Tilemap (createTilemap)
-import Engine.Villagers (idleTick, checkIdleTimer, updateVillagerCollisions, updateVillagers)
+import Engine.Villagers (idleTick, checkIdleTimer, updateVillagerCollisions, updateVillagers, spawnHauler)
 import Engine.DataTypes (DrawLevels(..), EntityState (Idle, Carrying, Loading))
 import Engine.Utils (gget, translate', truncate')
 import Engine.Input (handleEvent)
 import Engine.Draw (draw)
-import Engine.Buildings (updateBuildings, spawnHouse)
+import Engine.Buildings (updateBuildings, spawnHouse, spawnStorage)
 
 windowConfig = InWindow "ApecsTest" (1280, 900) (10, 10)
 
 initialize ::StdGen ->  System' ()
 initialize rng = do
-  newEntity GlobalUnique
-  -- replicateM_ 2 $
-  newEntity (
-    Hauler,
-    (Villager Idle,
-    (Backpack Nothing,
-    (BoundingBox (V2 0.0 100.0) (V2 8.0 8.0),
-    (IdleMovement 20 3.0 0.0,
-    (IdlePoint $ V2 0.0 0.0,
-    (Position $ V2 0.0 100.0,
-    (Velocity $ V2 60.0 60.0,
-    (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
-    TargetPosition (V2 0.0 0.0))))))))))
-  newEntity (
-    Hauler,
-    (Villager Idle,
-    (Backpack Nothing,
-    (BoundingBox (V2 50.0 100.0) (V2 8.0 8.0),
-    (IdleMovement 20 3.0 0.0,
-    (IdlePoint $ V2 0.0 0.0,
-    (Position $ V2 50.0 100.0,
-    (Velocity $ V2 60.0 60.0,
-    (Sprite $ Rectangle (6 * tileSize, 12 * tileSize) defaultRectSize,
-    TargetPosition (V2 0.0 0.0))))))))))
+  spawnHauler (V2 0.0 100.0) (V2 0.0 0.0) (V2 60.0 60.0)
+  spawnHauler (V2 50.0 100.0) (V2 0.0 0.0) (V2 60.0 60.0)
   spawnHouse $ V2 300.0 200.0
   newEntity (
       Building,
@@ -66,21 +44,14 @@ initialize rng = do
       BoundingBox (V2 0.0 0.0) (V2 8.0 8.0),
       InteractionBox (V2 0.0 0.0) defaultRectSizeV2,
       Position $ V2 0.0 0.0)
-  newEntity (
-      Building,
-      EntityName "Storage",
-      Sprite $ Rectangle (6 * tileSize, 4 * tileSize) defaultRectSize,
-      BoundingBox (V2 (-300.0) 50.0) (V2 8.0 8.0),
-      InteractionBox (V2 (-300.0) 50.0) defaultRectSizeV2,
-      StorageSpace [("Wood", 100)],
-      Position $ V2 (-300.0) 50.0)
+  spawnStorage (V2 (-300.0) 50.0) [("Wood", 100)]
   newEntity (
       Button False,
       Sprite $ Rectangle (1 * tileSize, 2 * tileSize) defaultRectSize,
       InteractionBox (V2 (-500.0) (-400.0)) (defaultRectSizeV2 * 2),
       Position $ V2 (-500.0) (-400.0))
   newEntity $ Rng rng
-  newEntity $ DrawLevel Default
+  newEntity $ DrawLevel Debug
   newEntity $ InfoPanel Nothing
   maybeWhiteFont <- liftIO $ loadJuicyPNG whiteFontPath
   maybeBlackFont <- liftIO $ loadJuicyPNG blackFontPath
